@@ -43,7 +43,9 @@
 	</h4>
 	<div class="ui attached table unstackable segment">
 		<div class="file-view {{if .IsMarkup}}markdown{{else if .IsRenderedHTML}}plain-text{{else if .IsTextFile}}code-view{{end}} has-emoji">
-			{{if .IsMarkup}}
+			{{if .IsDATFile}}
+				<iframe width="100%" height="600px" src="http://localhost:9090/stats/network/?path={{.Owner.Name}}/{{.RepoName}}/{{.BranchName}}"></iframe>
+			{{else if .IsMarkup}}
 				{{if .FileContent}}{{.FileContent | Safe}}{{end}}
 			{{else if .IsRenderedHTML}}
 				<pre>{{if .FileContent}}{{.FileContent | Str2html}}{{end}}</pre>

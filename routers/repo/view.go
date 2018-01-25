@@ -19,6 +19,7 @@ import (
 	"code.gitea.io/gitea/models"
 	"code.gitea.io/gitea/modules/base"
 	"code.gitea.io/gitea/modules/context"
+	"code.gitea.io/gitea/modules/datstats"
 	"code.gitea.io/gitea/modules/highlight"
 	"code.gitea.io/gitea/modules/lfs"
 	"code.gitea.io/gitea/modules/log"
@@ -192,6 +193,8 @@ func renderFile(ctx *context.Context, entry *git.TreeEntry, treeLink, rawLink st
 	}
 
 	switch {
+	case datstats.IsDATFile(blob.Name()):
+		ctx.Data["IsDATFile"] = true
 	case isTextFile:
 		if blob.Size() >= setting.UI.MaxDisplayFileSize {
 			ctx.Data["IsFileTooLarge"] = true
