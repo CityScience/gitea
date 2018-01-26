@@ -5,7 +5,11 @@
 package repo
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"path"
@@ -449,6 +453,24 @@ func UploadFile(ctx *context.Context) {
 		treeNames = []string{""}
 	}
 
+	// Build list of file sha1 hashes
+	// TODO: need to do this for the current path, not the top of  repo
+	// TODO: this could be very expensive for big files, don't we already
+	// have the file shas somewhere? It's not entry.ID though
+	entries, _ := ctx.Repo.Commit.Tree.ListEntries()
+	fileIds := make([]string, len(entries))
+	for i, entry := range entries {
+		if !entry.IsDir() {
+			hash := sha1.New()
+			data, _ := entry.Blob().Data()
+			io.Copy(hash, data)
+			fileIds[i] = hex.EncodeToString(hash.Sum(nil))
+
+		}
+	}
+	fileIdsJSON, _ := json.Marshal(fileIds)
+
+	ctx.Data["FileIds"] = string(fileIdsJSON)
 	ctx.Data["TreeNames"] = treeNames
 	ctx.Data["TreePaths"] = treePaths
 	ctx.Data["BranchLink"] = ctx.Repo.RepoLink + "/src/" + ctx.Repo.BranchNameSubURL()
