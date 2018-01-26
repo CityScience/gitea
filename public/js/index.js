@@ -1440,6 +1440,7 @@ $(document).ready(function () {
         Dropzone.autoDiscover = false;
 
         var filenameDict = {};
+        var currentShas = $dropzone.data('current-shas');
         $dropzone.dropzone({
             url: $dropzone.data('upload-url'),
             headers: {"X-Csrf-Token": csrf},
@@ -1451,6 +1452,18 @@ $(document).ready(function () {
             dictInvalidFileType: $dropzone.data('invalid-input-type'),
             dictFileTooBig: $dropzone.data('file-too-big'),
             dictRemoveFile: $dropzone.data('remove-file'),
+            accept: function(file, done) {
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    var file_sha1 = sha1(event.target.result)
+                    if(currentShas.includes(file_sha1)) {
+                        done('Same file already uploaded');
+                    } else {
+                        done();
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            },
             init: function () {
                 this.on("success", function (file, data) {
                     filenameDict[file.name] = data.uuid;
